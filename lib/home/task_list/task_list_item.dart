@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app_todo_fri_c11/app_colors.dart';
+import 'package:flutter_app_todo_fri_c11/firebase_utils.dart';
+import 'package:flutter_app_todo_fri_c11/model/task.dart';
+import 'package:flutter_app_todo_fri_c11/provider/list_provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:provider/provider.dart';
 
 class TaskListItem extends StatelessWidget {
+  Task task;
+
+  TaskListItem({required this.task});
+
   @override
   Widget build(BuildContext context) {
+    var listProvider = Provider.of<ListProvider>(context);
     return Container(
       margin: EdgeInsets.all(12),
       child: Slidable(
@@ -20,6 +29,13 @@ class TaskListItem extends StatelessWidget {
               borderRadius: BorderRadius.all(Radius.circular(12)),
               onPressed: (context) {
                 /// delete task
+                FirebaseUtils.deleteTaskFromFireStore(task).timeout(
+                    Duration(
+                      seconds: 1,
+                    ), onTimeout: () {
+                  print('task delete successfully');
+                  listProvider.getAllTasksFromFireStore();
+                });
               },
               backgroundColor: AppColors.redColor,
               foregroundColor: AppColors.whiteColor,
@@ -48,29 +64,29 @@ class TaskListItem extends StatelessWidget {
               ),
               Expanded(
                   child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Title',
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        task.title,
                     style: Theme.of(context)
                         .textTheme
                         .titleSmall
                         ?.copyWith(color: AppColors.primaryColor),
                   ),
-                  Text(
-                    'Des',
+                      Text(
+                        task.description,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                ],
-              )),
+                    ],
+                  )),
               ElevatedButton(
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(
                         AppColors.primaryColor),
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    )),
+                          borderRadius: BorderRadius.circular(10.0),
+                        )),
                   ),
                   onPressed: () {},
                   child: Icon(

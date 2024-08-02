@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app_todo_fri_c11/firebase_utils.dart';
+import 'package:flutter_app_todo_fri_c11/model/task.dart';
+import 'package:flutter_app_todo_fri_c11/provider/list_provider.dart';
+import 'package:provider/provider.dart';
 
 class AddTaskBottomSheet extends StatefulWidget {
   @override
@@ -10,9 +14,11 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
   var formKey = GlobalKey<FormState>();
   String title = '';
   String description = '';
+  late ListProvider listProvider;
 
   @override
   Widget build(BuildContext context) {
+    listProvider = Provider.of<ListProvider>(context);
     return Container(
       margin: EdgeInsets.all(12),
       child: SingleChildScrollView(
@@ -42,7 +48,7 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                           /// valid
                         },
                         decoration:
-                            InputDecoration(hintText: 'Enter task title'),
+                        InputDecoration(hintText: 'Enter task title'),
                       ),
                     ),
                     Padding(
@@ -58,7 +64,7 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                           return null;
                         },
                         decoration:
-                            InputDecoration(hintText: 'Enter task Description'),
+                        InputDecoration(hintText: 'Enter task Description'),
                         maxLines: 4,
                       ),
                     ),
@@ -78,7 +84,7 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                         },
                         child: Text(
                           '${selectedDate.day}/${selectedDate.month}'
-                          '/${selectedDate.year}',
+                              '/${selectedDate.year}',
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
@@ -116,6 +122,17 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
   void addTask() {
     if (formKey.currentState?.validate() == true) {
       /// add task
+      Task task = Task(
+        title: title,
+        description: description,
+        dateTime: selectedDate,
+      );
+      FirebaseUtils.addTaskToFireStore(task).timeout(Duration(seconds: 1),
+          onTimeout: () {
+        print('Task added successfully');
+        listProvider.getAllTasksFromFireStore();
+        Navigator.pop(context);
+      });
     }
   }
 }

@@ -1,9 +1,14 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_todo_fri_c11/auth/login/login_screen.dart';
+import 'package:flutter_app_todo_fri_c11/auth/register/register_screen.dart';
 import 'package:flutter_app_todo_fri_c11/home/home_screen.dart';
 import 'package:flutter_app_todo_fri_c11/my_theme_data.dart';
+import 'package:flutter_app_todo_fri_c11/provider/list_provider.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,7 +20,10 @@ void main() async {
               messagingSenderId: '539679194519',
               projectId: 'todo-app-fri-c11-66cb0'))
       : await Firebase.initializeApp();
-  runApp(MyApp());
+  await FirebaseFirestore.instance.disableNetwork();
+
+  runApp(ChangeNotifierProvider(
+      create: (context) => ListProvider(), child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -23,9 +31,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: HomeScreen.routeName,
+      initialRoute: LoginScreen.routeName,
       routes: {
         HomeScreen.routeName: (context) => HomeScreen(),
+        RegisterScreen.routeName: (context) => RegisterScreen(),
+        LoginScreen.routeName: (context) => LoginScreen(),
       },
       theme: MyThemeData.lightTheme,
     );
