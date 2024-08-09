@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_todo_fri_c11/auth/login/login_screen.dart';
@@ -8,6 +7,7 @@ import 'package:flutter_app_todo_fri_c11/auth/register/register_screen.dart';
 import 'package:flutter_app_todo_fri_c11/home/home_screen.dart';
 import 'package:flutter_app_todo_fri_c11/my_theme_data.dart';
 import 'package:flutter_app_todo_fri_c11/provider/list_provider.dart';
+import 'package:flutter_app_todo_fri_c11/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -20,10 +20,17 @@ void main() async {
               messagingSenderId: '539679194519',
               projectId: 'todo-app-fri-c11-66cb0'))
       : await Firebase.initializeApp();
-  await FirebaseFirestore.instance.disableNetwork();
+  // await FirebaseFirestore.instance.disableNetwork();
 
-  runApp(ChangeNotifierProvider(
-      create: (context) => ListProvider(), child: MyApp()));
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context) => ListProvider()),
+      ChangeNotifierProvider(
+        create: (context) => UserProvider(),
+      )
+    ],
+    child: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {

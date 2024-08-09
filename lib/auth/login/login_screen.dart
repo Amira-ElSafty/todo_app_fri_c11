@@ -4,7 +4,11 @@ import 'package:flutter_app_todo_fri_c11/app_colors.dart';
 import 'package:flutter_app_todo_fri_c11/auth/custome_text_form_field.dart';
 import 'package:flutter_app_todo_fri_c11/auth/register/register_screen.dart';
 import 'package:flutter_app_todo_fri_c11/dialog_utils.dart';
+import 'package:flutter_app_todo_fri_c11/firebase_utils.dart';
 import 'package:flutter_app_todo_fri_c11/home/home_screen.dart';
+import 'package:provider/provider.dart';
+
+import '../../provider/user_provider.dart';
 
 class LoginScreen extends StatelessWidget {
   static const String routeName = 'login_screen';
@@ -122,6 +126,13 @@ class LoginScreen extends StatelessWidget {
         final credential = await FirebaseAuth.instance
             .signInWithEmailAndPassword(
                 email: emailController.text, password: passwordController.text);
+        var user = await FirebaseUtils.readUserFromFireStore(
+            credential.user?.uid ?? '');
+        if (user == null) {
+          return;
+        }
+        var userProvider = Provider.of<UserProvider>(context, listen: false);
+        userProvider.updateUser(user);
         //todo: hide loading
         DialogUtils.hideLoading(context);
         //todo: show Message
@@ -131,7 +142,7 @@ class LoginScreen extends StatelessWidget {
             title: 'Success',
             posActionName: 'Ok',
             posAction: () {
-              Navigator.of(context).pushNamed(HomeScreen.routeName);
+              Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
             });
 
         print('login successfully');

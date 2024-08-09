@@ -3,6 +3,7 @@ import 'package:flutter_app_todo_fri_c11/app_colors.dart';
 import 'package:flutter_app_todo_fri_c11/firebase_utils.dart';
 import 'package:flutter_app_todo_fri_c11/model/task.dart';
 import 'package:flutter_app_todo_fri_c11/provider/list_provider.dart';
+import 'package:flutter_app_todo_fri_c11/provider/user_provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 
@@ -14,6 +15,7 @@ class TaskListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var listProvider = Provider.of<ListProvider>(context);
+    var userProvider = Provider.of<UserProvider>(context);
     return Container(
       margin: EdgeInsets.all(12),
       child: Slidable(
@@ -29,12 +31,19 @@ class TaskListItem extends StatelessWidget {
               borderRadius: BorderRadius.all(Radius.circular(12)),
               onPressed: (context) {
                 /// delete task
-                FirebaseUtils.deleteTaskFromFireStore(task).timeout(
-                    Duration(
-                      seconds: 1,
-                    ), onTimeout: () {
+                FirebaseUtils.deleteTaskFromFireStore(
+                        task, userProvider.currentUser!.id!)
+                    .then((value) {
                   print('task delete successfully');
-                  listProvider.getAllTasksFromFireStore();
+                  listProvider
+                      .getAllTasksFromFireStore(userProvider.currentUser!.id!);
+                }).timeout(
+                        Duration(
+                          seconds: 1,
+                        ), onTimeout: () {
+                  print('task delete successfully');
+                  listProvider
+                      .getAllTasksFromFireStore(userProvider.currentUser!.id!);
                 });
               },
               backgroundColor: AppColors.redColor,

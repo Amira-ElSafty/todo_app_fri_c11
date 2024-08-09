@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app_todo_fri_c11/app_colors.dart';
+import 'package:flutter_app_todo_fri_c11/auth/login/login_screen.dart';
 import 'package:flutter_app_todo_fri_c11/home/settings/settings_tab.dart';
 import 'package:flutter_app_todo_fri_c11/home/task_list/add_task_bottom_sheet.dart';
 import 'package:flutter_app_todo_fri_c11/home/task_list/task_list_tab.dart';
+import 'package:flutter_app_todo_fri_c11/provider/list_provider.dart';
+import 'package:flutter_app_todo_fri_c11/provider/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String routeName = 'home_screen';
@@ -16,13 +20,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var userProvider = Provider.of<UserProvider>(context);
+    var listProvider = Provider.of<ListProvider>(context);
     return Scaffold(
       appBar: AppBar(
         // toolbarHeight: MediaQuery.of(context).size.height*0.2
         title: Text(
-          'To Do List',
+          selectedIndex == 0
+              ? 'To Do List {${userProvider.currentUser!.name!}}'
+              : 'Settings',
           style: Theme.of(context).textTheme.titleLarge,
         ),
+        actions: [
+          IconButton(
+              onPressed: () {
+                listProvider.tasksList = [];
+                // userProvider.currentUser = null ;
+                Navigator.of(context)
+                    .pushReplacementNamed(LoginScreen.routeName);
+              },
+              icon: Icon(Icons.logout))
+        ],
       ),
       bottomNavigationBar: BottomAppBar(
         shape: CircularNotchedRectangle(),
@@ -64,8 +82,8 @@ class _HomeScreenState extends State<HomeScreen> {
             height: MediaQuery.of(context).size.height * 0.1,
           ),
           Expanded(child: selectedIndex == 0 ? TaskListTab() : SettingsTab()
-              // tabs[selectedIndex]
-              )
+            // tabs[selectedIndex]
+          )
         ],
       ),
     );
